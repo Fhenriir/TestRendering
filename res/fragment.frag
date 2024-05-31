@@ -1,8 +1,10 @@
 #version 410
 
 out vec4 out_color;
+uniform float alpha;
+uniform vec4 color;
 
 void main()
 {
-    out_color = vec4(0.9,0.9,0,0);
+    out_color = color;
 }
