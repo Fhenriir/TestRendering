@@ -13,7 +13,7 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "M1 GP/Partie 1 - Setup.md",
+                "file": "M1 GP/Partie 2 - Bases du rendu.md",
                 "mode": "source",
                 "source": false
               }
@@ -85,7 +85,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "M1 GP/Partie 1 - Setup.md",
+                "file": "M1 GP/Partie 2 - Bases du rendu.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -102,7 +102,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "M1 GP/Partie 1 - Setup.md",
+                "file": "M1 GP/Partie 2 - Bases du rendu.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               }
@@ -125,7 +125,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "M1 GP/Partie 1 - Setup.md"
+                "file": "M1 GP/Partie 2 - Bases du rendu.md"
               }
             }
           }
@@ -148,8 +148,9 @@
   },
   "active": "af6e9998c6eb97d9",
   "lastOpenFiles": [
+    "M1 GP/Partie 3 - Du vrai rendu 3D.md",
+    "M1 GP/Partie 1 - Setup.md",
     "M1 GP/Intro.md",
-    "M1 GP/Partie 2 - Bases du rendu.md",
-    "M1 GP/Partie 1 - Setup.md"
+    "M1 GP/Partie 2 - Bases du rendu.md"
   ]
 }

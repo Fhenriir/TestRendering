@@ -81,9 +81,10 @@ int main()
         glClear(GL_COLOR_BUFFER_BIT); // Exécute concrètement l'action d'appliquer sur tout l'écran la couleur choisie au-dessus
         glm::mat4 const view_matrix = camera.view_matrix(); // On récupère la matrice de vue de la caméra
         glm::mat4 const projection_matrix = glm::infinitePerspective(1.f /*field of view in radians*/, gl::framebuffer_aspect_ratio() /*aspect ratio*/, 0.001f /*near plane*/);
+        glm::mat4 const ortho_projection = glm::ortho(-(800.0f / 100.0f), 800.0f / 100.0f, 600.0f / 100.0f, -(600.0f / 100.0f),-1000.0f, 1000.0f);
         shader.bind(); // On a besoin qu'un shader soit bind (i.e. "actif") avant de draw(). On en reparle dans la section d'après.
         float _baseTime = gl::time_in_seconds();
-        shader.set_uniform("viewMatrix", projection_matrix * view_matrix);
+        shader.set_uniform("viewMatrix", ortho_projection * view_matrix);
         shader.set_uniform("time", _baseTime);
         shader.set_uniform("alpha", 1.f);
         shader.set_uniform("color",glm::vec4(0.9,0.9,0,1));
