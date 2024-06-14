@@ -7,6 +7,7 @@ int main()
     // Initialisation
     gl::init("TPs de Rendering"); // On crée une fenêtre et on choisit son nom
     glEnable(GL_BLEND);
+    glEnable(GL_DEPTH_TEST);
     glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE_MINUS_DST_ALPHA, GL_ONE);
     gl::maximize_window(); // On peut la maximiser si on veut
     auto camera = gl::Camera{};
@@ -103,7 +104,7 @@ int main()
     while (gl::window_is_open())
     {
         glClearColor(0.f, 0.f, 1.f, 0.1f); // Choisis la couleur à utiliser. Les paramètres sont R, G, B, A avec des valeurs qui vont de 0 à 1
-        glClear(GL_COLOR_BUFFER_BIT); // Exécute concrètement l'action d'appliquer sur tout l'écran la couleur choisie au-dessus
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT ); // Exécute concrètement l'action d'appliquer sur tout l'écran la couleur choisie au-dessus
         glm::mat4 const view_matrix = camera.view_matrix(); // On récupère la matrice de vue de la caméra
         glm::mat4 const projection_matrix = glm::infinitePerspective(1.f /*field of view in radians*/, gl::framebuffer_aspect_ratio() /*aspect ratio*/, 0.001f /*near plane*/);
         glm::mat4 const ortho_projection = glm::ortho(-(800.0f / 100.0f), 800.0f / 100.0f, 600.0f / 100.0f, -(600.0f / 100.0f),-1000.0f, 1000.0f);
