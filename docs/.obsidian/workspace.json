@@ -4,17 +4,17 @@
     "type": "split",
     "children": [
       {
-        "id": "04b5272713d4f53f",
+        "id": "1db521b1d62ccf8a",
         "type": "tabs",
         "children": [
           {
-            "id": "af6e9998c6eb97d9",
+            "id": "46111551c50cef10",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
                 "file": "M1 GP/Partie 2 - Bases du rendu.md",
-                "mode": "source",
+                "mode": "preview",
                 "source": false
               }
             }
@@ -146,11 +146,12 @@
       "command-palette:Open command palette": false
     }
   },
-  "active": "af6e9998c6eb97d9",
+  "active": "46111551c50cef10",
   "lastOpenFiles": [
+    "M1 GP/img/texture.png",
+    "M1 GP/Partie 2 - Bases du rendu.md",
     "M1 GP/Partie 3 - Du vrai rendu 3D.md",
     "M1 GP/Partie 1 - Setup.md",
-    "M1 GP/Intro.md",
-    "M1 GP/Partie 2 - Bases du rendu.md"
+    "M1 GP/Intro.md"
   ]
 }
