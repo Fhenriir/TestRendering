@@ -73,6 +73,30 @@ int main()
         },
     }};
 
+    auto const cube_mesh = gl::Mesh{ {
+        .vertex_buffers = {{
+			.layout = {gl::VertexAttribute::Position3D{0}},
+            .data = {
+				-0.5f, -0.5f, -0.5f, // Position3D du 1er sommet
+				+0.5f, -0.5f, -0.5f, // Position3D du 2ème sommet
+				+0.5f, +0.5f, -0.5f, // Position3D du 3ème sommet
+				-0.5f, +0.5f, -0.5f, // Position3D du 4ème sommet
+				-0.5f, -0.5f, +0.5f, // Position3D du 5ème sommet
+				+0.5f, -0.5f, +0.5f, // Position3D du 6ème sommet
+				+0.5f, +0.5f, +0.5f, // Position3D du 7ème sommet
+				-0.5f, +0.5f, +0.5f  // Position3D du 8ème sommet
+			},
+		}},
+        .index_buffer = {
+			0, 1, 2, 0, 2, 3, // Face 1
+			1, 5, 6, 1, 6, 2, // Face 2
+			5, 4, 7, 5, 7, 6, // Face 3
+			4, 0, 3, 4, 3, 7, // Face 4
+			3, 2, 6, 3, 6, 7, // Face 5
+			4, 5, 1, 4, 1, 0  // Face 6
+		},
+	}};
+
     //glClearColor(0.f, 0.f, 1.f, 1.f); // Choisis la couleur à utiliser. Les paramètres sont R, G, B, A avec des valeurs qui vont de 0 à 1
     //glClear(GL_COLOR_BUFFER_BIT); // Exécute concrètement l'action d'appliquer sur tout l'écran la couleur choisie au-dessus
 
@@ -88,10 +112,10 @@ int main()
         glm::mat4 const modele = translation * rotation;
         shader.bind(); // On a besoin qu'un shader soit bind (i.e. "actif") avant de draw(). On en reparle dans la section d'après.
         float _baseTime = gl::time_in_seconds();
-        shader.set_uniform("viewMatrix",modele * projection_matrix * view_matrix);
+        shader.set_uniform("viewMatrix",projection_matrix * view_matrix);
         shader.set_uniform("time", _baseTime);
         shader.set_uniform("alpha", 1.f);
         shader.set_uniform("color",glm::vec4(0.9,0.9,0,1));
-        rectangle_mesh.draw(); // C'est ce qu'on appelle un "draw call" : on envoie l'instruction à la carte graphique de dessiner notre mesh.
+        cube_mesh.draw(); // C'est ce qu'on appelle un "draw call" : on envoie l'instruction à la carte graphique de dessiner notre mesh.
     }
 }
