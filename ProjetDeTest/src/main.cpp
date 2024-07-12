@@ -76,16 +76,17 @@ int main()
 
     auto const cube_mesh = gl::Mesh{ {
         .vertex_buffers = {{
-			.layout = {gl::VertexAttribute::Position3D{0}},
+            .layout = {gl::VertexAttribute::Position3D{0},gl::VertexAttribute::UV{1}},
             .data = {
-				-0.5f, -0.5f, -0.5f, // Position3D du 1er sommet
-				+0.5f, -0.5f, -0.5f, // Position3D du 2ème sommet
-				+0.5f, +0.5f, -0.5f, // Position3D du 3ème sommet
-				-0.5f, +0.5f, -0.5f, // Position3D du 4ème sommet
-				-0.5f, -0.5f, +0.5f, // Position3D du 5ème sommet
-				+0.5f, -0.5f, +0.5f, // Position3D du 6ème sommet
-				+0.5f, +0.5f, +0.5f, // Position3D du 7ème sommet
-				-0.5f, +0.5f, +0.5f  // Position3D du 8ème sommet
+				-0.5f, -0.5f, -0.5f, 0, 0, // Position3D du 1er sommet
+				+0.5f, -0.5f, -0.5f, 1, 0,// Position3D du 2ème sommet
+				+0.5f, +0.5f, -0.5f, 1, 1,// Position3D du 3ème sommet
+				-0.5f, +0.5f, -0.5f, 0, 1,// Position3D du 4ème sommet
+
+				-0.5f, -0.5f, +0.5f, 0, 0,// Position3D du 5ème sommet
+				+0.5f, -0.5f, +0.5f, 1, 0,// Position3D du 6ème sommet
+				+0.5f, +0.5f, +0.5f, 1, 1,// Position3D du 7ème sommet
+				-0.5f, +0.5f, +0.5f, 0, 1// Position3D du 8ème sommet
 			},
 		}},
         .index_buffer = {
@@ -133,7 +134,7 @@ int main()
 
     while (gl::window_is_open())
     {
-        glClearColor(0.f, 0.f, 1.f, 0.1f); // Choisis la couleur à utiliser. Les paramètres sont R, G, B, A avec des valeurs qui vont de 0 à 1
+        glClearColor(0.1f, 0.1f, 0.1f, 1.f); // Choisis la couleur à utiliser. Les paramètres sont R, G, B, A avec des valeurs qui vont de 0 à 1
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT ); // Exécute concrètement l'action d'appliquer sur tout l'écran la couleur choisie au-dessus
         glm::mat4 const view_matrix = camera.view_matrix(); // On récupère la matrice de vue de la caméra
         glm::mat4 const projection_matrix = glm::infinitePerspective(1.f /*field of view in radians*/, gl::framebuffer_aspect_ratio() /*aspect ratio*/, 0.001f /*near plane*/);
@@ -148,6 +149,6 @@ int main()
         shader.set_uniform("alpha", 1.f);
         shader.set_uniform("color",glm::vec4(0.9,0.9,0,1));
         shader.set_uniform("the_texture",builded_texture);
-        care_mesh.draw(); // C'est ce qu'on appelle un "draw call" : on envoie l'instruction à la carte graphique de dessiner notre mesh.
+        cube_mesh.draw(); // C'est ce qu'on appelle un "draw call" : on envoie l'instruction à la carte graphique de dessiner notre mesh.
     }
 }
