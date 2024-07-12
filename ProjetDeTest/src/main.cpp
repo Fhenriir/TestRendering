@@ -104,14 +104,14 @@ int main()
         .vertex_buffers = {{
             .layout = {gl::VertexAttribute::Position3D{0},gl::VertexAttribute::UV{1}},
             .data = {
-                -1, -1, 0, 0, 0, // Position3D du 1er sommet
-                +1, -1, 0, 1, 0, // Position3D du 2ème sommet
-                +1, +1, 0, 1, 1, // Position3D du 3ème sommet
-                -1, +1, 0, 0, 1  // Position3D du 4ème sommet
+                -1, +1, 0, 0, 0, // Position3D du 1er sommet
+                +1, +1, 0, 0, 1, // Position3D du 2ème sommet
+                -1, -1, 0, 1, 0, // Position3D du 3ème sommet
+                +1, -1, 0, 1, 1  // Position3D du 4ème sommet
             },
         }},
         .index_buffer = {
-            0, 1, 2, // Indices du premier triangle : on utilise le 1er, 2ème et 3ème sommet
+            0, 1, 3, // Indices du premier triangle : on utilise le 1er, 2ème et 3ème sommet
             0, 2, 3  // Indices du deuxième triangle : on utilise le 1er, 3ème et 4ème sommet
         },
     }};
@@ -169,7 +169,7 @@ int main()
     while (gl::window_is_open())
     {
 		render_target.render([&]() {
-			glClearColor(0.1f, 0.1f, 0.1f, 1.f); // Choisis la couleur à utiliser. Les paramètres sont R, G, B, A avec des valeurs qui vont de 0 à 1
+			glClearColor(0.2f, 0.2f, 0.2f, 1.f); // Choisis la couleur à utiliser. Les paramètres sont R, G, B, A avec des valeurs qui vont de 0 à 1
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // Exécute concrètement l'action d'appliquer sur tout l'écran la couleur choisie au-dessus
 			glm::mat4 const view_matrix = camera.view_matrix(); // On récupère la matrice de vue de la caméra
 			glm::mat4 const projection_matrix = glm::infinitePerspective(1.f /*field of view in radians*/, gl::framebuffer_aspect_ratio() /*aspect ratio*/, 0.001f /*near plane*/);
@@ -186,5 +186,17 @@ int main()
 			shader.set_uniform("the_texture", builded_texture);
 			cube_mesh.draw(); // C'est ce qu'on appelle un "draw call" : on envoie l'instruction à la carte graphique de dessiner notre mesh.
 		});
+        glClearColor(0.1f, 0.1f, 0.1f, 1.f); // Choisis la couleur à utiliser. Les paramètres sont R, G, B, A avec des valeurs qui vont de 0 à 1
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // Exécute concrètement l'action d'appliquer sur tout l'écran la couleur choisie au-dessus
+        glm::mat4 const view_matrix = camera.view_matrix();
+        glm::mat4 const projection_matrix = glm::infinitePerspective(1.f /*field of view in radians*/, gl::framebuffer_aspect_ratio() /*aspect ratio*/, 0.001f /*near plane*/);
+        shader.bind(); // On a besoin qu'un shader soit bind (i.e. "actif") avant de draw(). On en reparle dans la section d'après.
+        float _baseTime = gl::time_in_seconds();
+        shader.set_uniform("viewMatrix", projection_matrix* view_matrix);
+        shader.set_uniform("time", _baseTime);
+        shader.set_uniform("alpha", 1.f);
+        shader.set_uniform("color", glm::vec4(0.9, 0.9, 0, 1));
+        shader.set_uniform("the_texture", render_target.color_texture(0));
+        care_mesh.draw(); // C'est ce qu'on appelle un "draw call" : on envoie l'instruction à la carte graphique de dessiner notre mesh.
     }
 }
