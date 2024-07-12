@@ -13,6 +13,7 @@ int main()
     auto camera = gl::Camera{};
     gl::set_events_callbacks({ camera.events_callbacks() });
     gl::set_events_callbacks({camera.events_callbacks()});
+
     glm::mat4 const view_matrix = camera.view_matrix();
 
     auto const shader = gl::Shader{{
@@ -60,12 +61,12 @@ int main()
 
     auto const background_mesh = gl::Mesh{{
         .vertex_buffers = {{
-            .layout = {gl::VertexAttribute::Position2D{0}},
+            .layout = {gl::VertexAttribute::Position2D{0},gl::VertexAttribute::UV{1}},
             .data = {
-                -2.f, -2.f, // Position2D du 1er sommet
-                +2.f, -2.f, // Position2D du 2ème sommet
-                +2.f, +2.f, // Position2D du 3ème sommet
-                -2.f, +2.f  // Position2D du 4ème sommet
+                -2.f, -2.f,0,0 // Position2D du 1er sommet
+                +2.f, -2.f,1,0 // Position2D du 2ème sommet
+                +2.f, +2.f,1,1 // Position2D du 3ème sommet
+                -2.f, +2.f,0,1  // Position2D du 4ème sommet
             },
         }},
         .index_buffer = {
@@ -129,26 +130,61 @@ int main()
         }
     };
 
+	auto render_target = gl::RenderTarget{ gl::RenderTarget_Descriptor{
+	    .width = gl::framebuffer_width_in_pixels(),
+	    .height = gl::framebuffer_height_in_pixels(),
+	    .color_textures = {
+		    gl::ColorAttachment_Descriptor{
+			    .format = gl::InternalFormat_Color::RGBA8,
+			    .options = {
+				    .minification_filter = gl::Filter::NearestNeighbour, // On va toujours afficher la texture à la taille de l'écran,
+				    .magnification_filter = gl::Filter::NearestNeighbour, // donc les filtres n'auront pas d'effet. Tant qu'à faire on choisit le moins coûteux.
+				    .wrap_x = gl::Wrap::ClampToEdge,
+				    .wrap_y = gl::Wrap::ClampToEdge,
+			    },
+		    },
+	    },
+	    .depth_stencil_texture = gl::DepthStencilAttachment_Descriptor{
+		    .format = gl::InternalFormat_DepthStencil::Depth32F,
+		    .options = {
+			    .minification_filter = gl::Filter::NearestNeighbour,
+			    .magnification_filter = gl::Filter::NearestNeighbour,
+			    .wrap_x = gl::Wrap::ClampToEdge,
+			    .wrap_y = gl::Wrap::ClampToEdge,
+		    },
+	    },
+    }};
+
+    gl::set_events_callbacks({
+        camera.events_callbacks(),
+        {.on_framebuffer_resized = [&](gl::FramebufferResizedEvent const& e) {
+            if (e.width_in_pixels != 0 && e.height_in_pixels != 0) // OpenGL crash si on tente de faire une render target avec une taille de 0
+            render_target.resize(e.width_in_pixels, e.height_in_pixels);
+        }},
+    });
+
     //glClearColor(0.f, 0.f, 1.f, 1.f); // Choisis la couleur à utiliser. Les paramètres sont R, G, B, A avec des valeurs qui vont de 0 à 1
     //glClear(GL_COLOR_BUFFER_BIT); // Exécute concrètement l'action d'appliquer sur tout l'écran la couleur choisie au-dessus
 
     while (gl::window_is_open())
     {
-        glClearColor(0.1f, 0.1f, 0.1f, 1.f); // Choisis la couleur à utiliser. Les paramètres sont R, G, B, A avec des valeurs qui vont de 0 à 1
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT ); // Exécute concrètement l'action d'appliquer sur tout l'écran la couleur choisie au-dessus
-        glm::mat4 const view_matrix = camera.view_matrix(); // On récupère la matrice de vue de la caméra
-        glm::mat4 const projection_matrix = glm::infinitePerspective(1.f /*field of view in radians*/, gl::framebuffer_aspect_ratio() /*aspect ratio*/, 0.001f /*near plane*/);
-        glm::mat4 const ortho_projection = glm::ortho(-(800.0f / 100.0f), 800.0f / 100.0f, 600.0f / 100.0f, -(600.0f / 100.0f),-1000.0f, 1000.0f);
-        glm::mat4 const rotation = glm::rotate(glm::mat4{1.f}, gl::time_in_seconds() /*angle de la rotation*/, glm::vec3{0.f, 0.f, 1.f} /* axe autour duquel on tourne */);
-        glm::mat4 const translation = glm::translate(glm::mat4{1.f}, glm::vec3{0.f, 1.f, 0.f});
-        glm::mat4 const modele = translation * rotation;
-        shader.bind(); // On a besoin qu'un shader soit bind (i.e. "actif") avant de draw(). On en reparle dans la section d'après.
-        float _baseTime = gl::time_in_seconds();
-        shader.set_uniform("viewMatrix",projection_matrix * view_matrix);
-        shader.set_uniform("time", _baseTime);
-        shader.set_uniform("alpha", 1.f);
-        shader.set_uniform("color",glm::vec4(0.9,0.9,0,1));
-        shader.set_uniform("the_texture",builded_texture);
-        cube_mesh.draw(); // C'est ce qu'on appelle un "draw call" : on envoie l'instruction à la carte graphique de dessiner notre mesh.
+		render_target.render([&]() {
+			glClearColor(0.1f, 0.1f, 0.1f, 1.f); // Choisis la couleur à utiliser. Les paramètres sont R, G, B, A avec des valeurs qui vont de 0 à 1
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // Exécute concrètement l'action d'appliquer sur tout l'écran la couleur choisie au-dessus
+			glm::mat4 const view_matrix = camera.view_matrix(); // On récupère la matrice de vue de la caméra
+			glm::mat4 const projection_matrix = glm::infinitePerspective(1.f /*field of view in radians*/, gl::framebuffer_aspect_ratio() /*aspect ratio*/, 0.001f /*near plane*/);
+			glm::mat4 const ortho_projection = glm::ortho(-(800.0f / 100.0f), 800.0f / 100.0f, 600.0f / 100.0f, -(600.0f / 100.0f), -1000.0f, 1000.0f);
+			glm::mat4 const rotation = glm::rotate(glm::mat4{1.f}, gl::time_in_seconds() /*angle de la rotation*/, glm::vec3{0.f, 0.f, 1.f} /* axe autour duquel on tourne */);
+			glm::mat4 const translation = glm::translate(glm::mat4{1.f}, glm::vec3{0.f, 1.f, 0.f});
+			glm::mat4 const modele = translation * rotation;
+			shader.bind(); // On a besoin qu'un shader soit bind (i.e. "actif") avant de draw(). On en reparle dans la section d'après.
+			float _baseTime = gl::time_in_seconds();
+			shader.set_uniform("viewMatrix", projection_matrix * view_matrix);
+			shader.set_uniform("time", _baseTime);
+			shader.set_uniform("alpha", 1.f);
+			shader.set_uniform("color", glm::vec4(0.9, 0.9, 0, 1));
+			shader.set_uniform("the_texture", builded_texture);
+			cube_mesh.draw(); // C'est ce qu'on appelle un "draw call" : on envoie l'instruction à la carte graphique de dessiner notre mesh.
+		});
     }
 }
