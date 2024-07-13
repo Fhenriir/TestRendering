@@ -11,7 +11,7 @@ int main()
     glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE_MINUS_DST_ALPHA, GL_ONE);
     gl::maximize_window(); // On peut la maximiser si on veut
     auto camera = gl::Camera{};
-    gl::set_events_callbacks({ camera.events_callbacks() });
+    gl::set_events_callbacks({camera.events_callbacks()});
     gl::set_events_callbacks({camera.events_callbacks()});
 
     glm::mat4 const view_matrix = camera.view_matrix();
@@ -20,6 +20,11 @@ int main()
         .vertex   = gl::ShaderSource::File{"res/vertex.vert"},
         .fragment = gl::ShaderSource::File{"res/fragment.frag"},
     }};
+
+    auto const shaderMain = gl::Shader{ {
+		.vertex   = gl::ShaderSource::File{"res/vertexMain.vert"},
+		.fragment = gl::ShaderSource::File{"res/fragmentMain.frag"},
+	}};
 
     auto const triangle_mesh = gl::Mesh{{
         .vertex_buffers = {{
@@ -104,10 +109,10 @@ int main()
         .vertex_buffers = {{
             .layout = {gl::VertexAttribute::Position3D{0},gl::VertexAttribute::UV{1}},
             .data = {
-                -1, +1, 0, 0, 0, // Position3D du 1er sommet
-                +1, +1, 0, 0, 1, // Position3D du 2ème sommet
-                -1, -1, 0, 1, 0, // Position3D du 3ème sommet
-                +1, -1, 0, 1, 1  // Position3D du 4ème sommet
+                +2.0f, -2.0f, 0, 1, 0, // Position3D du 1er sommet
+                +2.0f, +2.0f, 0, 1, 1, // Position3D du 2ème sommet
+                -2.0f, -2.0f, 0, 0, 0, // Position3D du 3ème sommet
+                -2.0f, +2.0f, 0, 0, 1  // Position3D du 4ème sommet
             },
         }},
         .index_buffer = {
@@ -188,15 +193,14 @@ int main()
 		});
         glClearColor(0.1f, 0.1f, 0.1f, 1.f); // Choisis la couleur à utiliser. Les paramètres sont R, G, B, A avec des valeurs qui vont de 0 à 1
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // Exécute concrètement l'action d'appliquer sur tout l'écran la couleur choisie au-dessus
-        glm::mat4 const view_matrix = camera.view_matrix();
-        glm::mat4 const projection_matrix = glm::infinitePerspective(1.f /*field of view in radians*/, gl::framebuffer_aspect_ratio() /*aspect ratio*/, 0.001f /*near plane*/);
-        shader.bind(); // On a besoin qu'un shader soit bind (i.e. "actif") avant de draw(). On en reparle dans la section d'après.
+        shaderMain.bind(); // On a besoin qu'un shader soit bind (i.e. "actif") avant de draw(). On en reparle dans la section d'après.
         float _baseTime = gl::time_in_seconds();
-        shader.set_uniform("viewMatrix", projection_matrix* view_matrix);
-        shader.set_uniform("time", _baseTime);
-        shader.set_uniform("alpha", 1.f);
-        shader.set_uniform("color", glm::vec4(0.9, 0.9, 0, 1));
-        shader.set_uniform("the_texture", render_target.color_texture(0));
+        shaderMain.set_uniform("aspectRatio", 1.0f);
+        shaderMain.set_uniform("viewMatrix", glm::mat4(1.0f));
+        shaderMain.set_uniform("time", _baseTime);
+        shaderMain.set_uniform("alpha", 1.f);
+        shaderMain.set_uniform("color", glm::vec4(0.9, 0.9, 0, 1));
+        shaderMain.set_uniform("the_texture", render_target.color_texture(0));
         care_mesh.draw(); // C'est ce qu'on appelle un "draw call" : on envoie l'instruction à la carte graphique de dessiner notre mesh.
     }
 }
