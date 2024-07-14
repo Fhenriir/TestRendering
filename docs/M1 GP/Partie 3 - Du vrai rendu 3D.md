@@ -1,17 +1,58 @@
 ## Charger un mesh depuis un fichier
 
-Pour commencer, nous allons enfin utiliser de vrais modèles 3D. Pour cela, nous allons utiliser la librairie [*tinyobjloader*](https://github.com/tinyobjloader/tinyobjloader) qui lit le format de fichier *.obj* (un format simple de modèle 3D, qui est essentiellement une longue liste de sommets avec positions, UVs, normales, etc.). La librairie est déjà inclue par *opengl-framework*, vous n'avez rien à faire de ce côté là. Je vous laisse vous référer à [la documentation de *tinyobjloader*](https://github.com/tinyobjloader/tinyobjloader) pour voir comment l'utiliser pour lire un modèle 3D. Pour vos tests, vous pouvez utiliser [ce modèle 3D](/fourareen.zip).
+Pour commencer, nous allons enfin utiliser de vrais modèles 3D. Pour cela, nous allons utiliser la librairie [*tinyobjloader*](https://github.com/tinyobjloader/tinyobjloader) qui lit le format de fichier *.obj* (un format simple de modèle 3D, qui est essentiellement une longue liste de sommets avec positions, UVs, normales, etc.). La librairie est déjà inclue par *opengl-framework*, vous n'avez rien à faire de ce côté là.
 
-**NB:** vous aurez besoin de la fonction `gl::make_absolute_path(path)` pour convertir un chemin relatif (par exemple `"res/meshes/fourareen.obj"` en un chemin absolu que *tinyobjloader* va comprendre).
+Il va nous falloir créer un tableau de floats qu'on va remplir avec les positions, UVs et normales du mesh, et nous allons ensuite utiliser ce tableau comme `data` pour créer un `gl::Mesh` :
+
+```cpp
+auto load_mesh(std::filesystem::path const& path) -> gl::Mesh
+{
+    // On lit le fichier avec tinyobj
+    auto reader = tinyobj::ObjReader{};
+    reader.ParseFromFile(gl::make_absolute_path(path).string(), {});
+
+    if (!reader.Error().empty())
+        throw std::runtime_error("Failed to read 3D model:\n" + reader.Error());
+    if (!reader.Warning().empty())
+        std::cout << "Warning while reading 3D model:\n" + reader.Warning();
+
+    // On met tous les attributs dans un tableau
+    auto vertices = std::vector<float>{};
+    for (auto const& shape : reader.GetShapes())
+    {
+        for (auto const& idx : shape.mesh.indices)
+        {
+            // Position
+            vertices.push_back(reader.GetAttrib().vertices[3 * idx.vertex_index + 0]);
+            vertices.push_back(reader.GetAttrib().vertices[3 * idx.vertex_index + 1]);
+            vertices.push_back(reader.GetAttrib().vertices[3 * idx.vertex_index + 2]);
+
+            // UV
+            vertices.push_back(reader.GetAttrib().texcoords[2 * idx.texcoord_index + 0]);
+            vertices.push_back(reader.GetAttrib().texcoords[2 * idx.texcoord_index + 1]);
+
+            // Normale
+            vertices.push_back(reader.GetAttrib().normals[3 * idx.normal_index + 0]);
+            vertices.push_back(reader.GetAttrib().normals[3 * idx.normal_index + 1]);
+            vertices.push_back(reader.GetAttrib().normals[3 * idx.normal_index + 2]);
+        };
+    }
+
+    // TODO créer et return un gl::mesh, qui utilisera le tableau `vertices` en tant que `data` pour son vertex buffer.
+    // Attention, il faudra bien spécifier le layout pour qu'il corresponde à l'ordre des attributs dans le tableau `vertices`.
+}
+```
+
+Complétez la fonction ci-dessus pour construire un mesh à partir du tableau de vertices obtenu grâce à tinyobj. Il vous suffit ensuite de remplacer votre mesh de cube par un mesh loadé avec cette fonction, et le tour est joué ! Pour vos tests, vous pouvez utiliser [ce modèle 3D](/fourareen.zip) et le mettre dans votre dossier *res*.
 
 ![](./img/step-23.png)
 
 :::tip
-N'essayez pas de faire un index buffer, les sommets tels qu'ils sont donnés par *tinyobjloader*  ont un index buffer différent pour chaque attribut, ce qui n'est pas supporté par OpenGL. Il faudrait plutôt inspecter tous les sommets pour détecter ceux qui ont les mêmes positions **et** UVs **et** normales et recréer notre propre index buffer à partir de ça.
+Si votre modèle est penché sur le côté au début, c'est "normal". Il n'y a pas de convention universelle pour l'axe qui pointe vers le haut : certaines utilisent Y, et d'autres Z. Il faudra donc légèrement modifier les vertexs du mesh au moment du loading afin de faire pointer le bon axe vers le haut.
 :::
 
 :::tip
-Si votre modèle est penché sur le côté au début, c'est "normal". Il n'y a pas de convention universelle pour l'axe qui pointe vers le haut : certain.es utilisent Y, et d'autres Z. Il faudra donc légèrement modifier les vertexs du mesh afin de faire pointer le bon axe vers le haut.
+N'essayez pas de faire un index buffer, les sommets tels qu'ils sont donnés par *tinyobjloader* ont un index buffer différent pour chaque attribut, ce qui n'est pas supporté par OpenGL. Il faudrait plutôt inspecter tous les sommets pour détecter ceux qui ont les mêmes positions **et** UVs **et** normales et recréer notre propre index buffer à partir de ça.
 :::
 
 :::info Note

@@ -9,5 +9,8 @@ uniform sampler2D the_texture;
 
 void main()
 {
-    out_color = texture(the_texture, uv);
+    vec4 true_color = texture(the_texture, uv);
+    float unlit = 1 - max(max(true_color.r,true_color.g),true_color.b);
+    vec4 unlit_color = vec4(true_color.r+unlit,true_color.g+unlit,true_color.b+unlit,true_color.a);
+    out_color = unlit_color;
 }
