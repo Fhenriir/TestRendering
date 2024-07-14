@@ -266,6 +266,7 @@ int main()
 			shader.set_uniform("color", glm::vec4(0.9, 0.9, 0, 1));
 			shader.set_uniform("the_texture", builded_texture2);
             shader.set_uniform("uniform_light", uniform_light);
+            shader.set_uniform("base_illumination", 0.3f);
             load_mesh("..\\..\\..\\res\\fourareen\\fourareen.obj").draw(); // C'est ce qu'on appelle un "draw call" : on envoie l'instruction à la carte graphique de dessiner notre mesh.
 		});
         glClearColor(0.1f, 0.1f, 0.1f, 1.f); // Choisis la couleur à utiliser. Les paramètres sont R, G, B, A avec des valeurs qui vont de 0 à 1
