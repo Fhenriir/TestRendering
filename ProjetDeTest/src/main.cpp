@@ -48,7 +48,7 @@ auto load_mesh(std::filesystem::path const& path) -> gl::Mesh
 auto load_texture(std::filesystem::path const& path) -> gl::Texture{
     auto result = gl::Texture{
         gl::TextureSource::File{ // Peut être un fichier, ou directement un tableau de pixels
-            .path = path,
+            .path = gl::make_absolute_path(path).string(),
             .flip_y = true, // Il n'y a pas de convention universelle sur la direction de l'axe Y. Les fichiers (.png, .jpeg) utilisent souvent une direction différente de celle attendue par OpenGL. Ce booléen flip_y est là pour inverser la texture si jamais elle n'apparaît pas dans le bon sens.
             .texture_format = gl::InternalFormat::RGBA8, // Format dans lequel la texture sera stockée. On pourrait par exemple utiliser RGBA16 si on voulait 16 bits par canal de couleur au lieu de 8. (Mais ça ne sert à rien dans notre cas car notre fichier ne contient que 8 bits par canal, donc on ne gagnerait pas de précision). On pourrait aussi stocker en RGB8 si on ne voulait pas de canal alpha. On utilise aussi parfois des textures avec un seul canal (R8) pour des usages spécifiques.
         },
@@ -195,6 +195,20 @@ int main()
         }
     };
 
+    auto const builded_texture2 = gl::Texture{
+        gl::TextureSource::File{ // Peut être un fichier, ou directement un tableau de pixels
+            .path = "res/fourareen/fourareen2K_albedo.jpg",
+            .flip_y = true, // Il n'y a pas de convention universelle sur la direction de l'axe Y. Les fichiers (.png, .jpeg) utilisent souvent une direction différente de celle attendue par OpenGL. Ce booléen flip_y est là pour inverser la texture si jamais elle n'apparaît pas dans le bon sens.
+            .texture_format = gl::InternalFormat::RGBA8, // Format dans lequel la texture sera stockée. On pourrait par exemple utiliser RGBA16 si on voulait 16 bits par canal de couleur au lieu de 8. (Mais ça ne sert à rien dans notre cas car notre fichier ne contient que 8 bits par canal, donc on ne gagnerait pas de précision). On pourrait aussi stocker en RGB8 si on ne voulait pas de canal alpha. On utilise aussi parfois des textures avec un seul canal (R8) pour des usages spécifiques.
+        },
+        gl::TextureOptions{
+            .minification_filter = gl::Filter::Linear, // Comment on va moyenner les pixels quand on voit l'image de loin ?
+            .magnification_filter = gl::Filter::Linear, // Comment on va interpoler entre les pixels quand on zoom dans l'image ?
+            .wrap_x = gl::Wrap::Repeat,   // Quelle couleur va-t-on lire si jamais on essaye de lire en dehors de la texture ?
+            .wrap_y = gl::Wrap::Repeat,   // Idem, mais sur l'axe Y. En général on met le même wrap mode sur les deux axes.
+        }
+    };
+
 	auto render_target = gl::RenderTarget{ gl::RenderTarget_Descriptor{
 	    .width = gl::framebuffer_width_in_pixels(),
 	    .height = gl::framebuffer_height_in_pixels(),
@@ -248,7 +262,7 @@ int main()
 			shader.set_uniform("time", _baseTime);
 			shader.set_uniform("alpha", 1.f);
 			shader.set_uniform("color", glm::vec4(0.9, 0.9, 0, 1));
-			shader.set_uniform("the_texture", load_texture("..\\..\\..\\res\\fourareen\\fourareen2K_albedo.jpg"));
+			shader.set_uniform("the_texture", builded_texture2);
             load_mesh("..\\..\\..\\res\\fourareen\\fourareen.obj").draw(); // C'est ce qu'on appelle un "draw call" : on envoie l'instruction à la carte graphique de dessiner notre mesh.
 		});
         glClearColor(0.1f, 0.1f, 0.1f, 1.f); // Choisis la couleur à utiliser. Les paramètres sont R, G, B, A avec des valeurs qui vont de 0 à 1

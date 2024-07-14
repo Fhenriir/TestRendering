@@ -18,5 +18,5 @@ void main()
     uv = in_uv;
     normal = in_normal;
     new_pos[1] = new_pos[1] * aspectRatio;
-    gl_Position = viewMatrix * vec4(in_position, 1.);
+    gl_Position = viewMatrix * vec4(in_position.x,in_position.z,in_position.y, 1.);
 }
