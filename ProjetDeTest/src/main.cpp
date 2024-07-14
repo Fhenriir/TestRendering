@@ -76,6 +76,8 @@ int main()
 
     glm::mat4 const view_matrix = camera.view_matrix();
 
+    glm::vec3 const uniform_light = glm::vec3(0.2f, 0.3f, -1.f);
+
     auto const shader = gl::Shader{{
         .vertex   = gl::ShaderSource::File{"res/vertex.vert"},
         .fragment = gl::ShaderSource::File{"res/fragment.frag"},
@@ -263,6 +265,7 @@ int main()
 			shader.set_uniform("alpha", 1.f);
 			shader.set_uniform("color", glm::vec4(0.9, 0.9, 0, 1));
 			shader.set_uniform("the_texture", builded_texture2);
+            shader.set_uniform("uniform_light", uniform_light);
             load_mesh("..\\..\\..\\res\\fourareen\\fourareen.obj").draw(); // C'est ce qu'on appelle un "draw call" : on envoie l'instruction à la carte graphique de dessiner notre mesh.
 		});
         glClearColor(0.1f, 0.1f, 0.1f, 1.f); // Choisis la couleur à utiliser. Les paramètres sont R, G, B, A avec des valeurs qui vont de 0 à 1
